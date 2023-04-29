@@ -34,9 +34,11 @@ class _StoryThemeMenuState extends State<StoryThemeMenu> {
   }
 
   Future _initData() async {
-    final Map<String, dynamic> data =
-        jsonDecode(await rootBundle.loadString('assets/story_themes.json'));
-    textColors = data["textColors"];
+    final Map<String, dynamic> data = jsonDecode(
+        await rootBundle.loadString('assets/data/story_themes.json'));
+    setState(() {
+      textColors = data["textColors"].cast<String>();
+    });
   }
 
   @override
@@ -80,15 +82,30 @@ class _StoryThemeMenuState extends State<StoryThemeMenu> {
                     style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
-                SizedBox(
-                  height: 100,
+                Container(
+                  height: 80,
+                  margin: EdgeInsets.only(bottom: 20, top: 20),
                   child: ListView(
+                    scrollDirection: Axis.horizontal,
                     children: List.generate(
                         textColors.length,
                         (index) => Container(
-                              height: 100,
-                              width: 100,
-                              color: Colors.amber,
+                              height: 80,
+                              width: 60,
+                              margin: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color(int.parse(
+                                          textColors[index].substring(1, 7),
+                                          radix: 16) +
+                                      0xFF000000),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
+                                  border: textColors[index] ==
+                                          widget.storyTheme.textColor
+                                      ? Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2)
+                                      : null),
                             )),
                   ),
                 ),
@@ -100,6 +117,33 @@ class _StoryThemeMenuState extends State<StoryThemeMenu> {
                   ),
                 ),
                 Container(
+                  height: 80,
+                  margin: EdgeInsets.only(bottom: 20, top: 20),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: List.generate(
+                        textColors.length,
+                        (index) => Container(
+                              height: 80,
+                              width: 60,
+                              margin: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color(int.parse(
+                                          textColors[index].substring(1, 7),
+                                          radix: 16) +
+                                      0xFF000000),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
+                                  border: textColors[index] ==
+                                          widget.storyTheme.textColor
+                                      ? Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2)
+                                      : null),
+                            )),
+                  ),
+                ),
+                Container(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Date colors: ",
@@ -107,10 +151,64 @@ class _StoryThemeMenuState extends State<StoryThemeMenu> {
                   ),
                 ),
                 Container(
+                  height: 80,
+                  margin: EdgeInsets.only(bottom: 20, top: 20),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: List.generate(
+                        textColors.length,
+                        (index) => Container(
+                              height: 80,
+                              width: 60,
+                              margin: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color(int.parse(
+                                          textColors[index].substring(1, 7),
+                                          radix: 16) +
+                                      0xFF000000),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
+                                  border: textColors[index] ==
+                                          widget.storyTheme.textColor
+                                      ? Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2)
+                                      : null),
+                            )),
+                  ),
+                ),
+                Container(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Button themes: ",
                     style: Theme.of(context).textTheme.headline6,
+                  ),
+                ),
+                Container(
+                  height: 80,
+                  margin: EdgeInsets.only(bottom: 20, top: 20),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: List.generate(
+                        textColors.length,
+                        (index) => Container(
+                              height: 80,
+                              width: 60,
+                              margin: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Color(int.parse(
+                                          textColors[index].substring(1, 7),
+                                          radix: 16) +
+                                      0xFF000000),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
+                                  border: textColors[index] ==
+                                          widget.storyTheme.textColor
+                                      ? Border.all(
+                                          color: Theme.of(context).primaryColor,
+                                          width: 2)
+                                      : null),
+                            )),
                   ),
                 ),
               ],
