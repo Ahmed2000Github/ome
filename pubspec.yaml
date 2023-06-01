@@ -61,6 +61,19 @@ flutter:
     - assets/data/
     - assets/images/backgrounds/
     - assets/
+  fonts:
+    - family: DancingScript
+      fonts:
+        - asset: assets/fonts/DancingScript-VariableFont_wght.ttf
+    - family: Foldit
+      fonts:
+        - asset: assets/fonts/Foldit-VariableFont_wght.ttf
+    - family: RubikPuddles
+      fonts:
+        - asset: assets/fonts/RubikPuddles-Regular.ttf
+    - family: Pacifico
+      fonts:
+        - asset: assets/fonts/Pacifico-Regular.ttf
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

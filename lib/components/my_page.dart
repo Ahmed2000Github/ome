@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/open_close_media.dart';
+import 'package:ome/configurations/configuration.dart';
 import 'package:ome/enums/media_type.dart';
 import 'package:ome/models/memory.dart';
 // import 'package:ome/configurations/routes.dart' as routes;
@@ -47,6 +48,7 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.model.theme!.dateColor);
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Stack(
@@ -63,7 +65,7 @@ class _MyPageState extends State<MyPage> {
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              margin: EdgeInsets.only(top: 40, left: 10, bottom: 30),
+              margin: const EdgeInsets.only(top: 40, left: 10, bottom: 30),
               child: Row(
                 children: [
                   IconButton(
@@ -79,12 +81,23 @@ class _MyPageState extends State<MyPage> {
                       Navigator.pop(context);
                     },
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Text(
                     DateFormat('yyyy-MM-dd').format(widget.model.date),
-                    style: Theme.of(context).textTheme.subtitle1,
+                    style: TextStyle(
+                        color: widget.model.theme!.dateColor.isEmpty
+                            ? Theme.of(context).primaryColor
+                            : Color(int.parse(
+                                    widget.model.theme!.dateColor
+                                        .substring(1, 7),
+                                    radix: 16) +
+                                0xFF000000),
+                        fontSize: Configuration.dateFontSize,
+                        fontFamily: widget.model.theme!.fontName.isEmpty
+                            ? "RaleWay"
+                            : widget.model.theme!.fontName),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 20,
                   )
                 ],
@@ -94,10 +107,20 @@ class _MyPageState extends State<MyPage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: FittedBox(
-                  child: Text(
-                    widget.model.title,
-                    style: Theme.of(context).textTheme.headline3,
-                  ),
+                  child: Text(widget.model.title,
+                      style: TextStyle(
+                          color: widget.model.theme!.textColor.isEmpty
+                              ? Configuration.defaultTextColor
+                              : Color(int.parse(
+                                      widget.model.theme!.textColor
+                                          .substring(1, 7),
+                                      radix: 16) +
+                                  0xFF000000),
+                          fontSize: Configuration.titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: widget.model.theme!.fontName.isEmpty
+                              ? "RubikPuddles"
+                              : widget.model.theme!.fontName)),
                 ),
               ),
             ),
@@ -114,19 +137,30 @@ class _MyPageState extends State<MyPage> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(1),
                         color: Theme.of(context).canvasColor,
-                        boxShadow: [BoxShadow(blurRadius: 20)]),
+                        boxShadow: [const BoxShadow(blurRadius: 20)]),
                     child: _getMediaPlayer()),
               ),
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(top: 40),
-                padding: EdgeInsets.all(10),
+                margin: const EdgeInsets.only(top: 40),
+                padding: const EdgeInsets.all(10),
                 child: SingleChildScrollView(
                   child: Text(
                     widget.model.description,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headline5,
+                    style: TextStyle(
+                        color: widget.model.theme!.textColor.isEmpty
+                            ? Configuration.defaultTextColor
+                            : Color(int.parse(
+                                    widget.model.theme!.textColor
+                                        .substring(1, 7),
+                                    radix: 16) +
+                                0xFF000000),
+                        fontSize: Configuration.descriptionFontSize,
+                        fontFamily: widget.model.theme!.fontName.isEmpty
+                            ? "RaleWay"
+                            : widget.model.theme!.fontName),
                   ),
                 ),
               ),
@@ -164,8 +198,8 @@ class _MyPageState extends State<MyPage> {
                           ))
                     ],
                   )
-                : Center(
-                    child: CircularProgressIndicator(),
+                : const Center(
+                    child: const CircularProgressIndicator(),
                   ));
       case MediaType.AUDIO:
         return Container(

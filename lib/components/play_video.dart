@@ -202,11 +202,9 @@ class _PlayVideoState extends State<PlayVideo> {
   void checkVideo() {
     // Implement your calls inside these conditions' bodies :
     if (_controller.value.position == Duration.zero) {
-      print('video Started');
     }
 
     if (_controller.value.position == _controller.value.duration) {
-      print('video Ended');
       setState(() {
         // _controller
       });

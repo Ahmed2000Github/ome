@@ -169,7 +169,7 @@ class _MemoryPageState extends State<MemoryPage> {
                       return openState
                           ? StoryThemeMenu(
                               storyId: state.story!.id,
-                              storyTheme: StoryThemeModel(textColor: "", dateColor: "", fontName: "",buttonBackgroundColor: "",buttonForgroundColor: ""))
+                              storyTheme: state.story!.theme!)
                           : Container();
                     },
                   )

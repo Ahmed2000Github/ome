@@ -4,6 +4,7 @@
 enum StateStatus {
   LOADING,
   LOADED,
+  CHANGELOADED,
   ERROR,
   NONE
 }

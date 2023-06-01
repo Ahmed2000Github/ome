@@ -30,8 +30,8 @@ class Utils {
     var tempDir = await getTemporaryDirectory();
 
     if (tempDir.existsSync()) {
-      print(tempDir.listSync());
-      // tempDir.deleteSync(recursive: true);
+      // print(tempDir.listSync());
+      tempDir.deleteSync(recursive: true);
     }
   }
 }

@@ -61,7 +61,6 @@ class _PlayAudioState extends State<PlayAudio> {
         isPlaying = false;
         isSoundFinished = true;
       });
-      print("the loop is : " + loop.toString());
       if (loop) {
         initAudio();
       }

@@ -16,9 +16,39 @@ import 'package:ome/enums/state_status.dart';
 import 'package:ome/models/memory.dart';
 import 'package:video_player/video_player.dart';
 
-class AddMemoryPage extends StatelessWidget {
+class AddMemoryPage extends StatefulWidget {
   MemoryModel? model;
-  AddMemoryPage({this.model, Key? key}) : super(key: key) {
+  AddMemoryPage({this.model, Key? key}) : super(key: key);
+
+  @override
+  State<AddMemoryPage> createState() => _AddMemoryPageState(model);
+}
+
+class _AddMemoryPageState extends State<AddMemoryPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  IconData _currentMediaType = Icons.photo_outlined;
+
+  final ScrollController _scrollController = ScrollController();
+
+  Function setInnerStateOfMediaPicker = () {};
+
+  Function setInnerStateOfInitVideoController = () {};
+
+  final TextEditingController _titleController = TextEditingController();
+
+  final TextEditingController _descriptionController = TextEditingController();
+
+  bool _mediaSelectorVisibility = false;
+
+  bool displayMediaPicker = false;
+
+  MediaType _mediaType = MediaType.NONE;
+
+  File? file;
+  MemoryModel? model;
+
+  _AddMemoryPageState(this.model) {
     if (model != null) {
       file = model!.file;
       _mediaType = model!.fileType;
@@ -28,25 +58,21 @@ class AddMemoryPage extends StatelessWidget {
       file = null;
     }
   }
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  IconData _currentMediaType = Icons.photo_outlined;
-  final ScrollController _scrollController = ScrollController();
-  Function setInnerStateOfMediaPicker = () {};
-  Function setInnerStateOfInitVideoController = () {};
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  bool _mediaSelectorVisibility = false;
-  bool displayMediaPicker = false;
-  MediaType _mediaType = MediaType.NONE;
-  File? file;
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    // TODO: implement initState
+    super.initState();
     context.read<FileHandlerBloc>().add(FileHandlerEvent(
         event: model == null
             ? FileHandlerEventEnum.EMPTY
             : FileHandlerEventEnum.LOADFILE,
         file: file,
         type: _mediaType));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -164,6 +190,8 @@ class AddMemoryPage extends StatelessWidget {
                                         child: BlocBuilder<FileHandlerBloc,
                                             FileHandlerState>(
                                           builder: (context, state) {
+                                            print(
+                                                "wwwwwwwwwwwwwwwwww ${state.status}");
                                             if (state.status ==
                                                 FileHandlerStateEnum.LOADED) {
                                               _mediaType = state.type!;
@@ -339,7 +367,7 @@ class AddMemoryPage extends StatelessWidget {
                                         color: Colors.white, blurRadius: 5)
                                   ]),
                               child: Text(
-                                model == null ? "Add" : "Update",
+                                widget.model == null ? "Add" : "Update",
                                 style: Theme.of(context).textTheme.headline6,
                               ),
                             ),
@@ -438,10 +466,10 @@ class AddMemoryPage extends StatelessWidget {
       return;
     }
     var story = MemoryModel(
-        id: model?.id ?? 0,
+        id: widget.model?.id ?? 0,
         title: _titleController.text,
         description: _descriptionController.text,
-        background: model?.background ?? "",
+        background: widget.model?.background ?? "",
         file: file,
         fileType: _mediaType,
         date: DateTime.now());
@@ -451,19 +479,17 @@ class AddMemoryPage extends StatelessWidget {
         .read<FileHandlerBloc>()
         .add(FileHandlerEvent(event: FileHandlerEventEnum.EMPTY));
     context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-        status: model == null
+        status: widget.model == null
             ? StoryHandlerEventStatus.POST
             : StoryHandlerEventStatus.UPDATE,
         story: story));
-    if (model == null) {
-      context.read<DirectoryInfoBloc>().add(DirectoryInfoEvent());
-    }
+
     _goBack(context);
   }
 
   _goBack(BuildContext context) {
     context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-        status: StoryHandlerEventStatus.GET, id: model?.id ?? 0));
+        status: StoryHandlerEventStatus.GET, id: widget.model?.id ?? 0));
     Navigator.pop(context);
   }
 

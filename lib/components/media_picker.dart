@@ -159,7 +159,6 @@ class _MediaSelectorState extends State<MediaSelector>
                         GestureDetector(
                           onTap: () async {
                             var link = await getUrl() ?? '';
-                            print("  ffff   " + link);
                             if (link.isNotEmpty) {
                               switch (widget.mediaType) {
                                 case MediaType.AUDIO:
@@ -307,7 +306,6 @@ class _MediaSelectorState extends State<MediaSelector>
           file: File(file.path),
           type: MediaType.VIDEO));
     } catch (e) {
-      print("$e");
     }
   }
 

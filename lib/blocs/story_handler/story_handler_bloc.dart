@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ome/models/memory.dart';
+import 'package:ome/models/sory_theme.dart';
 import 'package:ome/services/file_services.dart';
 
 import '../../enums/state_status.dart';
@@ -28,22 +30,28 @@ class StoryHandlerBloc extends Bloc<StoryHandlerEvent, StoryHandlerState> {
       case StoryHandlerEventStatus.POST:
         yield StoryHandlerState(status: StateStatus.LOADING);
         await fileServices.addFileToAlbom(event.story!);
-        yield StoryHandlerState(status: StateStatus.LOADED);
+        yield StoryHandlerState(status: StateStatus.CHANGELOADED);
         break;
       case StoryHandlerEventStatus.UPDATE:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        await fileServices.addFileToAlbom(event.story!,isUpdate: true);
+        await fileServices.addFileToAlbom(event.story!, isUpdate: true);
         yield StoryHandlerState(status: StateStatus.LOADED);
         break;
       case StoryHandlerEventStatus.UPDATEBACKGROUND:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        await fileServices.updateBackground(event.id!,event.path!);
+        await fileServices.updateBackground(event.id!, event.path!);
+        yield StoryHandlerState(status: StateStatus.LOADED);
+        break;
+      case StoryHandlerEventStatus.UPDATETHEME:
+        yield StoryHandlerState(status: StateStatus.LOADING);
+        print(event.id);
+        await fileServices.updateTheme(event.id!, event.theme!);
         yield StoryHandlerState(status: StateStatus.LOADED);
         break;
       case StoryHandlerEventStatus.DELETE:
         yield StoryHandlerState(status: StateStatus.LOADING);
         await fileServices.deleteFileByIndex(event.id!);
-        yield StoryHandlerState(status: StateStatus.LOADED);
+        yield StoryHandlerState(status: StateStatus.CHANGELOADED);
         break;
       default:
     }

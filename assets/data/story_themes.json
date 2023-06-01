@@ -15,7 +15,12 @@
     "#A52A2A",
     "#808080"
   ],
-  "fonts": [""],
+  "fonts": [
+    "DancingScript",
+    "Foldit",
+    "RubikPuddles",
+    "Pacifico"
+  ],
   "dateColors": [""],
   "buttonThemes": [
     {

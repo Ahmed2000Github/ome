@@ -11,4 +11,6 @@ class StoryThemeModel {
       required this.buttonBackgroundColor,
       required this.buttonForgroundColor
       });
+
+  
 }
