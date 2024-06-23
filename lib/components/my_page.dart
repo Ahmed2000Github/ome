@@ -48,7 +48,6 @@ class _MyPageState extends State<MyPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.model.theme!.dateColor);
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Stack(
@@ -72,7 +71,10 @@ class _MyPageState extends State<MyPage> {
                     icon: Icon(
                       Icons.arrow_back,
                       size: 35,
-                      color: Theme.of(context).canvasColor,
+                      color: Color(int.parse(
+                              widget.model.theme!.textColor.substring(1, 7),
+                              radix: 16) +
+                          0xFF000000),
                     ),
                     onPressed: () {
                       context
@@ -85,17 +87,13 @@ class _MyPageState extends State<MyPage> {
                   Text(
                     DateFormat('yyyy-MM-dd').format(widget.model.date),
                     style: TextStyle(
-                        color: widget.model.theme!.dateColor.isEmpty
-                            ? Theme.of(context).primaryColor
-                            : Color(int.parse(
-                                    widget.model.theme!.dateColor
-                                        .substring(1, 7),
-                                    radix: 16) +
-                                0xFF000000),
+                        color: Color(int.parse(
+                                widget.model.theme!.dateColor.substring(1, 7),
+                                radix: 16) +
+                            0xFF000000),
                         fontSize: Configuration.dateFontSize,
-                        fontFamily: widget.model.theme!.fontName.isEmpty
-                            ? "RaleWay"
-                            : widget.model.theme!.fontName),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: widget.model.theme!.fontName),
                   ),
                   const SizedBox(
                     width: 20,
@@ -109,18 +107,13 @@ class _MyPageState extends State<MyPage> {
                 child: FittedBox(
                   child: Text(widget.model.title,
                       style: TextStyle(
-                          color: widget.model.theme!.textColor.isEmpty
-                              ? Configuration.defaultTextColor
-                              : Color(int.parse(
-                                      widget.model.theme!.textColor
-                                          .substring(1, 7),
-                                      radix: 16) +
-                                  0xFF000000),
+                          color: Color(int.parse(
+                                  widget.model.theme!.textColor.substring(1, 7),
+                                  radix: 16) +
+                              0xFF000000),
                           fontSize: Configuration.titleFontSize,
                           fontWeight: FontWeight.bold,
-                          fontFamily: widget.model.theme!.fontName.isEmpty
-                              ? "RubikPuddles"
-                              : widget.model.theme!.fontName)),
+                          fontFamily: widget.model.theme!.fontName)),
                 ),
               ),
             ),
@@ -150,20 +143,19 @@ class _MyPageState extends State<MyPage> {
                     widget.model.description,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: widget.model.theme!.textColor.isEmpty
-                            ? Configuration.defaultTextColor
-                            : Color(int.parse(
-                                    widget.model.theme!.textColor
-                                        .substring(1, 7),
-                                    radix: 16) +
-                                0xFF000000),
+                        color: Color(int.parse(
+                                widget.model.theme!.textColor.substring(1, 7),
+                                radix: 16) +
+                            0xFF000000),
                         fontSize: Configuration.descriptionFontSize,
-                        fontFamily: widget.model.theme!.fontName.isEmpty
-                            ? "RaleWay"
-                            : widget.model.theme!.fontName),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: widget.model.theme!.fontName),
                   ),
                 ),
               ),
+            ),
+            const SizedBox(
+              height: 60,
             )
           ],
         ),
@@ -205,12 +197,22 @@ class _MyPageState extends State<MyPage> {
         return Container(
           margin: const EdgeInsets.all(10),
           color: Theme.of(context).cardColor,
-          child: const Center(
-              child: Icon(
-            Icons.mic_rounded,
-            size: 90,
-            color: Color(0xff999999),
-          )),
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Audio',
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+                const Icon(
+                  Icons.music_note_outlined,
+                  size: 30,
+                  color: Color(0xffffffff),
+                ),
+              ],
+            ),
+          ),
         );
       case MediaType.NONE:
         return Container(

@@ -1,8 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ome/models/memory.dart';
-import 'package:ome/models/sory_theme.dart';
 import 'package:ome/services/file_services.dart';
 
 import '../../enums/state_status.dart';
@@ -21,7 +19,9 @@ class StoryHandlerBloc extends Bloc<StoryHandlerEvent, StoryHandlerState> {
       case StoryHandlerEventStatus.GET:
         yield StoryHandlerState(status: StateStatus.LOADING);
         var model = await fileServices.getModelWithIndex(event.id ?? 0);
-        yield StoryHandlerState(status: StateStatus.LOADED, story: model);
+        if (model != null) {
+          yield StoryHandlerState(status: StateStatus.LOADED, story: model);
+        }
 
         break;
       case StoryHandlerEventStatus.NONE:
@@ -34,7 +34,7 @@ class StoryHandlerBloc extends Bloc<StoryHandlerEvent, StoryHandlerState> {
         break;
       case StoryHandlerEventStatus.UPDATE:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        await fileServices.addFileToAlbom(event.story!, isUpdate: true);
+        await fileServices.updateFileFromAlbom(event.story!);
         yield StoryHandlerState(status: StateStatus.LOADED);
         break;
       case StoryHandlerEventStatus.UPDATEBACKGROUND:
@@ -44,7 +44,6 @@ class StoryHandlerBloc extends Bloc<StoryHandlerEvent, StoryHandlerState> {
         break;
       case StoryHandlerEventStatus.UPDATETHEME:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        print(event.id);
         await fileServices.updateTheme(event.id!, event.theme!);
         yield StoryHandlerState(status: StateStatus.LOADED);
         break;

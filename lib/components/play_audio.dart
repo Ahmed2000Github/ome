@@ -10,7 +10,7 @@ import 'package:lottie/lottie.dart';
 import 'package:ome/blocs/open_close_media.dart';
 
 class PlayAudio extends StatefulWidget {
-   File file;
+  File file;
   PlayAudio({required this.file});
   @override
   State<PlayAudio> createState() => _PlayAudioState();
@@ -22,6 +22,7 @@ class _PlayAudioState extends State<PlayAudio> {
   double _value = 0;
   double maxValue = 0;
   bool loop = false;
+  bool mute = false;
   bool isSoundFinished = false;
   Timer? timer;
   Function setInnerState = () {};
@@ -33,7 +34,7 @@ class _PlayAudioState extends State<PlayAudio> {
   }
 
   Future<void> initAudio() async {
-  var bytes = await widget.file.readAsBytes();
+    var bytes = await widget.file.readAsBytes();
     var buffer = bytes.buffer;
     player.play(BytesSource(Uint8List.view(buffer)));
     isPlaying = true;
@@ -91,7 +92,7 @@ class _PlayAudioState extends State<PlayAudio> {
         ),
         Center(
           child: Container(
-            margin: EdgeInsets.all(10),
+            margin: const EdgeInsets.all(10),
             height: height * .5,
             decoration: BoxDecoration(
                 boxShadow: [
@@ -103,11 +104,11 @@ class _PlayAudioState extends State<PlayAudio> {
               fit: StackFit.expand,
               children: [
                 Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     child: Lottie.asset("assets/images/sound.json",
                         animate: isPlaying)),
                 Container(
-                  margin: EdgeInsets.only(top: 200),
+                  margin: const EdgeInsets.only(top: 200),
                   child: StatefulBuilder(builder: (context, innerState) {
                     setInnerState = innerState;
                     return Slider(
@@ -117,7 +118,6 @@ class _PlayAudioState extends State<PlayAudio> {
                         thumbColor: Theme.of(context).primaryColor,
                         activeColor: Theme.of(context).primaryColor,
                         onChanged: (value) async {
-                          print("the value is " + value.toString());
                           player.seek(Duration(seconds: value.ceil()));
                         });
                   }),
@@ -136,20 +136,25 @@ class _PlayAudioState extends State<PlayAudio> {
                         },
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 0, 8, 15),
                       child: Row(
                         children: [
                           IconButton(
                             icon: Icon(
-                              Icons.share_outlined,
+                              mute ? Icons.volume_off : Icons.volume_up,
                               size: 40,
                               color: Theme.of(context).canvasColor,
                             ),
-                            onPressed: () {},
+                            onPressed: () async {
+                              setState(() {
+                                mute = !mute;
+                                player.setVolume(mute ? 0.0 : 1.0);
+                              });
+                            },
                           ),
-                          Spacer(),
+                          const Spacer(),
                           IconButton(
                             icon: Icon(
                               Icons.replay_10,
@@ -158,7 +163,7 @@ class _PlayAudioState extends State<PlayAudio> {
                             ),
                             onPressed: () async {
                               player.seek((await player.getCurrentPosition())! -
-                                  Duration(seconds: 10));
+                                  const Duration(seconds: 10));
                             },
                           ),
                           IconButton(
@@ -195,13 +200,13 @@ class _PlayAudioState extends State<PlayAudio> {
                             ),
                             onPressed: () async {
                               player.seek((await player.getCurrentPosition())! +
-                                  Duration(seconds: 10));
+                                  const Duration(seconds: 10));
                             },
                           ),
-                          Spacer(),
+                          const Spacer(),
                           IconButton(
                             icon: Icon(
-                              loop ? Icons.repeat : Icons.link_off,
+                              loop ? Icons.repeat : Icons.repeat_one,
                               size: 40,
                               color: Theme.of(context).canvasColor,
                             ),

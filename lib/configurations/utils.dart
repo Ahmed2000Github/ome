@@ -13,7 +13,6 @@ class Utils {
     var currentTimestamp = DateTime.now().microsecondsSinceEpoch;
     File file = File('$dir/$currentTimestamp');
     await file.writeAsBytes(bytes);
-    print(file.path);
     return file;
   }
 

@@ -3,8 +3,10 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
 import 'package:ome/blocs/file_size_check.dart';
@@ -99,7 +101,8 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                       child: Row(
                         children: [
                           Text(
-                            "12-12-2022",
+                            DateFormat('yyyy-MM-dd').format(
+                                model == null ? DateTime.now() : model!.date),
                             style: Theme.of(context).textTheme.subtitle1,
                           ),
                           const Spacer(),
@@ -161,7 +164,11 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                     GestureDetector(
                       onTap: () {
                         setInnerStateOfMediaPicker(() {
-                          _mediaSelectorVisibility = true;
+                          if (_mediaType == MediaType.NONE) {
+                            _mediaSelectorVisibility = false;
+                          } else {
+                            _mediaSelectorVisibility = true;
+                          }
                         });
                       },
                       child: StatefulBuilder(builder: (context, innetState) {
@@ -181,8 +188,8 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                                           width: 10,
                                           color:
                                               Theme.of(context).primaryColor),
-                                      boxShadow: [
-                                        const BoxShadow(blurRadius: 20)
+                                      boxShadow: const [
+                                        BoxShadow(blurRadius: 20)
                                       ]),
                                   child: Container(
                                       padding: const EdgeInsets.all(10),
@@ -190,8 +197,6 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                                         child: BlocBuilder<FileHandlerBloc,
                                             FileHandlerState>(
                                           builder: (context, state) {
-                                            print(
-                                                "wwwwwwwwwwwwwwwwww ${state.status}");
                                             if (state.status ==
                                                 FileHandlerStateEnum.LOADED) {
                                               _mediaType = state.type!;
@@ -206,10 +211,27 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                                               }
                                               if (state.type ==
                                                   MediaType.AUDIO) {
-                                                return const Icon(
-                                                  Icons.mic_rounded,
-                                                  size: 90,
-                                                  color: Color(0xff999999),
+                                                return Center(
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        'Audio',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .headline5,
+                                                      ),
+                                                      const Icon(
+                                                        Icons
+                                                            .music_note_outlined,
+                                                        size: 30,
+                                                        color:
+                                                            Color(0xffffffff),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 );
                                               }
                                               if (state.type ==
@@ -230,18 +252,41 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                                                       innerState;
                                                   return _controller
                                                           .value.isInitialized
-                                                      ? AspectRatio(
-                                                          aspectRatio:
-                                                              _controller.value
-                                                                  .aspectRatio,
-                                                          child: VideoPlayer(
-                                                              _controller),
+                                                      ? Stack(
+                                                          children: [
+                                                            Center(
+                                                              child:
+                                                                  AspectRatio(
+                                                                aspectRatio:
+                                                                    _controller
+                                                                        .value
+                                                                        .aspectRatio,
+                                                                child: VideoPlayer(
+                                                                    _controller),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                                color: Theme.of(
+                                                                        context)
+                                                                    .cardColor
+                                                                    .withOpacity(
+                                                                        .1),
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .play_circle_outline,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .canvasColor,
+                                                                  size: 60,
+                                                                ))
+                                                          ],
                                                         )
                                                       : Container();
                                                 });
                                               }
-                                              print(
-                                                  'wwwwwwwwwwwwwww ${file!.lengthSync()}');
                                               return Image(
                                                 image: FileImage(file!),
                                                 fit: BoxFit.cover,
@@ -532,6 +577,20 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
       child: Center(
         child: Icon(
           Icons.music_note_outlined,
+          color: Theme.of(context).secondaryHeaderColor,
+          size: 30,
+        ),
+      ),
+    ));
+    list.add(PopupMenuItem(
+      onTap: () {
+        _currentMediaType = Icons.media_bluetooth_off;
+        _mediaType = MediaType.NONE;
+      },
+      value: 3,
+      child: Center(
+        child: Icon(
+          Icons.media_bluetooth_off,
           color: Theme.of(context).secondaryHeaderColor,
           size: 30,
         ),

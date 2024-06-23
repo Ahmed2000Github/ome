@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
 import 'package:ome/blocs/file_size_check.dart';
@@ -13,12 +14,14 @@ import 'package:ome/configurations/routes.dart' as routes;
 import 'package:ome/configurations/utils.dart';
 import 'package:ome/services/file_services.dart';
 
-setUp() {
+setUp() async {
   GetIt.I.registerLazySingleton(() => FileServices());
+  await Hive.initFlutter();
+  await Hive.openBox('ome');
 }
 
-void main() {
-  setUp();
+void main() async {
+  await setUp();
   runApp(const MyApp());
 }
 

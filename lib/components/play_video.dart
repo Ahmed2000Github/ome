@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ome/blocs/open_close_media.dart';
 import 'package:video_player/video_player.dart';
 
-
 // ignore: must_be_immutable
 class PlayVideo extends StatefulWidget {
   File file;
@@ -18,6 +17,8 @@ class PlayVideo extends StatefulWidget {
 class _PlayVideoState extends State<PlayVideo> {
   late VideoPlayerController _controller;
   bool isInitialized = false;
+  bool mute = false;
+
   @override
   void initState() {
     super.initState();
@@ -75,7 +76,8 @@ class _PlayVideoState extends State<PlayVideo> {
                                 });
                               },
                               child: Container(
-                                padding: const EdgeInsets.only(left: 10, right: 10),
+                                padding:
+                                    const EdgeInsets.only(left: 10, right: 10),
                                 constraints:
                                     BoxConstraints(maxHeight: height * 0.27),
                                 child: Center(
@@ -122,16 +124,14 @@ class _PlayVideoState extends State<PlayVideo> {
                               children: [
                                 IconButton(
                                   icon: Icon(
-                                    _controller.value.isLooping
-                                        ? Icons.repeat
-                                        : Icons.link_off,
+                                    mute ? Icons.volume_off : Icons.volume_up,
                                     size: 40,
                                     color: Theme.of(context).canvasColor,
                                   ),
-                                  onPressed: () {
+                                  onPressed: () async {
                                     setState(() {
-                                      _controller.setLooping(
-                                          !_controller.value.isLooping);
+                                      mute = !mute;
+                                      _controller.setVolume(mute ? 0.0 : 1.0);
                                     });
                                   },
                                 ),
@@ -179,12 +179,19 @@ class _PlayVideoState extends State<PlayVideo> {
                                 const Spacer(),
                                 IconButton(
                                   icon: Icon(
-                                    Icons.share_outlined,
+                                    _controller.value.isLooping
+                                        ? Icons.repeat
+                                        : Icons.repeat_one,
                                     size: 40,
                                     color: Theme.of(context).canvasColor,
                                   ),
-                                  onPressed: () {},
-                                )
+                                  onPressed: () {
+                                    setState(() {
+                                      _controller.setLooping(
+                                          !_controller.value.isLooping);
+                                    });
+                                  },
+                                ),
                               ],
                             ),
                           )
@@ -201,8 +208,7 @@ class _PlayVideoState extends State<PlayVideo> {
 
   void checkVideo() {
     // Implement your calls inside these conditions' bodies :
-    if (_controller.value.position == Duration.zero) {
-    }
+    if (_controller.value.position == Duration.zero) {}
 
     if (_controller.value.position == _controller.value.duration) {
       setState(() {

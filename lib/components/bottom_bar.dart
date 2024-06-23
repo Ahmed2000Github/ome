@@ -4,6 +4,7 @@ import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/open_close_background_images.dart';
 import 'package:ome/blocs/open_close_story_menu.dart';
 import 'package:ome/blocs/story_handler/story_handler_bloc.dart';
+import 'package:ome/configurations/configuration.dart';
 import 'package:ome/configurations/routes.dart' as routes;
 import 'package:ome/models/memory.dart';
 
@@ -37,6 +38,7 @@ class _BottomBarState extends State<BottomBar>
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Container(
+      padding: EdgeInsets.only(bottom: 5),
       child: Stack(
         children: [
           Positioned(
@@ -48,23 +50,21 @@ class _BottomBarState extends State<BottomBar>
               // color: Theme.of(context).cardColor,
               child: Row(children: [
                 FloatingActionButton(
-                  elevation: 25,
-                  heroTag: "share",
-                  child: Icon(
-                    Icons.share_outlined,
-                    size: 35,
-                    color: Theme.of(context).canvasColor,
-                  ),
-                  onPressed: () {},
-                ),
-                const Spacer(),
-                FloatingActionButton(
                   elevation: 30,
                   heroTag: "background_image",
+                  backgroundColor: Color(int.parse(
+                          widget.model.theme!.buttonBackgroundColor
+                              .substring(1, 7),
+                          radix: 16) +
+                      0xFF000000),
                   child: Icon(
                     Icons.image_rounded,
                     size: 35,
-                    color: Theme.of(context).canvasColor,
+                    color: Color(int.parse(
+                            widget.model.theme!.buttonForgroundColor
+                                .substring(1, 7),
+                            radix: 16) +
+                        0xFF000000),
                   ),
                   onPressed: () {
                     context.read<OpenCloseBackgroundImagesBloc>().add(true);
@@ -73,10 +73,19 @@ class _BottomBarState extends State<BottomBar>
                 const Spacer(),
                 FloatingActionButton(
                   heroTag: "effect",
+                  backgroundColor: Color(int.parse(
+                          widget.model.theme!.buttonBackgroundColor
+                              .substring(1, 7),
+                          radix: 16) +
+                      0xFF000000),
                   child: Icon(
                     Icons.brush,
                     size: 30,
-                    color: Theme.of(context).canvasColor,
+                    color: Color(int.parse(
+                            widget.model.theme!.buttonForgroundColor
+                                .substring(1, 7),
+                            radix: 16) +
+                        0xFF000000),
                   ),
                   onPressed: () {
                     context.read<OpenCloseStoryThemeMenuBloc>().add(true);
@@ -84,10 +93,22 @@ class _BottomBarState extends State<BottomBar>
                 ),
                 const Spacer(),
                 FloatingActionButton(
+                  backgroundColor: Color(int.parse(
+                              widget.model.theme!.buttonBackgroundColor
+                                  .substring(1, 7),
+                              radix: 16) +
+                          0xFF000000)
+                      .withOpacity(0.5),
                   heroTag: "page",
                   child: Text(
                     "${widget.model.id + 1}",
-                    style: Theme.of(context).textTheme.headline5,
+                    style: TextStyle(
+                        color: Color(int.parse(
+                                widget.model.theme!.buttonForgroundColor
+                                    .substring(1, 7),
+                                radix: 16) +
+                            0xFF000000),
+                        fontSize: Configuration.descriptionFontSize),
                   ),
                   onPressed: () {},
                 )
@@ -111,14 +132,23 @@ class _BottomBarState extends State<BottomBar>
                       child: Container(
                         padding: const EdgeInsets.only(top: 8, bottom: 8),
                         decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.8),
+                            color: Color(int.parse(
+                                        widget
+                                            .model.theme!.buttonBackgroundColor
+                                            .substring(1, 7),
+                                        radix: 16) +
+                                    0xFF000000)
+                                .withOpacity(0.8),
                             borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(10),
                                 bottomRight: const Radius.circular(10))),
                         child: Icon(
                           Icons.arrow_forward_ios_rounded,
-                          color: Theme.of(context).canvasColor,
+                          color: Color(int.parse(
+                                  widget.model.theme!.buttonForgroundColor
+                                      .substring(1, 7),
+                                  radix: 16) +
+                              0xFF000000),
                         ),
                       ),
                     ))

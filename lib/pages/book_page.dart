@@ -111,20 +111,19 @@ class _MemoryPageState extends State<MemoryPage> {
     // var width = MediaQuery.of(context).size.width;
     // var height = MediaQuery.of(context).size.height;
     return Stack(children: [
-      GestureDetector(onPanUpdate: (details) {
-        if (details.delta.dx > 0 && (currentPage - 1) > -1) {
-          // swiping right
+      GestureDetector(onHorizontalDragEnd: (DragEndDetails details) {
+        if (details.primaryVelocity! > 0 && (currentPage - 1) > -1) {
           // print("swiping right");
           context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
               status: StoryHandlerEventStatus.GET, id: currentPage - 1));
-        } else if (details.delta.dx < 0 &&
+        } else if (details.primaryVelocity! < 0 &&
             (currentPage + 1) < widget.numberOfFiles) {
-          // swiping left
           // print("swiping left");
           context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
               status: StoryHandlerEventStatus.GET, id: currentPage + 1));
         }
-      }, child: BlocBuilder<StoryHandlerBloc, StoryHandlerState>(
+      },
+          child: BlocBuilder<StoryHandlerBloc, StoryHandlerState>(
         builder: (context, state) {
           if (state.status == StateStatus.LOADING) {
             return const LoadingIndicator();

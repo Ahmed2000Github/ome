@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
 import 'package:ome/blocs/file_size_check.dart';
+import 'package:ome/components/audio-recorder.dart';
 import 'package:ome/configurations/utils.dart';
 import 'package:ome/enums/media_type.dart';
 
@@ -58,7 +59,6 @@ class _MediaSelectorState extends State<MediaSelector>
         child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) {
-              // print(height - (240 * _controller.value));
               return Transform.translate(
                 offset: Offset(0, 240 - (240 * _controller.value)),
                 child: Container(
@@ -158,19 +158,16 @@ class _MediaSelectorState extends State<MediaSelector>
                         const Spacer(),
                         GestureDetector(
                           onTap: () async {
-                            var link = await getUrl() ?? '';
+                            String enumName = widget.mediaType
+                                .toString()
+                                .split('.')
+                                .last
+                                .toLowerCase();
+                            String formattedName = enumName[0].toUpperCase() +
+                                enumName.substring(1);
+                            var link = await getUrl(formattedName) ?? '';
                             if (link.isNotEmpty) {
-                              switch (widget.mediaType) {
-                                case MediaType.AUDIO:
-                                  handleAudioFromUrl(link);
-                                  break;
-                                case MediaType.VIDEO:
-                                  handleVideoFromUrl(link);
-                                  break;
-                                default:
-                                  handleImageFromUrl(link);
-                                  break;
-                              }
+                              handleFileFromUrl(link, widget.mediaType);
                             }
                           },
                           child: Container(
@@ -223,7 +220,6 @@ class _MediaSelectorState extends State<MediaSelector>
         return Icons.audio_file;
       case MediaType.VIDEO:
         return Icons.video_file;
-
       default:
         return Icons.collections;
     }
@@ -259,18 +255,6 @@ class _MediaSelectorState extends State<MediaSelector>
 
   // http://www.snut.fr/wp-content/uploads/2015/12/image-de-nature-4-1024x640.jpg
 
-  handleImageFromUrl(String link) async {
-    try {
-      var file = await Utils.getFileFromUrl(link);
-      context.read<FileHandlerBloc>().add(FileHandlerEvent(
-          event: FileHandlerEventEnum.LOADFILE,
-          file: File(file.path),
-          type: MediaType.IMAGE));
-    // ignore: empty_catches
-    } catch (e) {
-    }
-  }
-
   handleVideoFromGallery() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.video,
@@ -298,15 +282,17 @@ class _MediaSelectorState extends State<MediaSelector>
     });
   }
 
-  handleVideoFromUrl(String link) async {
+  handleFileFromUrl(String link, MediaType typeOfMedia) async {
     try {
       var file = await Utils.getFileFromUrl(link);
-      context.read<FileHandlerBloc>().add(FileHandlerEvent(
-          event: FileHandlerEventEnum.LOADFILE,
-          file: File(file.path),
-          type: MediaType.VIDEO));
-    } catch (e) {
-    }
+      var result = checkFile(file, typeOfMedia);
+      result
+          ? context.read<FileHandlerBloc>().add(FileHandlerEvent(
+              event: FileHandlerEventEnum.LOADFILE,
+              file: File(file.path),
+              type: typeOfMedia))
+          : showToast(context);
+    } catch (e) {}
   }
 
   handleAudioFromGallery() async {
@@ -314,24 +300,43 @@ class _MediaSelectorState extends State<MediaSelector>
       type: FileType.audio,
       allowCompression: false,
     );
-    File file = File(result!.files.first.path!);
-    int sizeInBytes = file.lengthSync();
-    double sizeInMb = sizeInBytes / (1024 * 1024);
-    if (sizeInMb > maxFileSize) {
-      context.read<FileCheckSizeBloc>().add(true);
-    } else {
-      _closeMediaPicker();
-      context.read<FileHandlerBloc>().add(FileHandlerEvent(
-          event: FileHandlerEventEnum.LOADFILE,
-          file: file,
-          type: MediaType.AUDIO));
-    }
+    addFile(File(result!.files.first.path!));
   }
 
-  handleAudioFromMicrop() {}
-  handleAudioFromUrl(String link) {}
+  handleAudioFromMicrop() async {
+    String? _filePath = await showDialog<String>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        AudioRecorder audioRecorder = AudioRecorder();
+        TextEditingController _controller = TextEditingController();
+        return AlertDialog(
+          backgroundColor: Theme.of(context).cardColor,
+          title: const Text("Start record:"),
+          content: StatefulBuilder(builder: (context, innerState) {
+            return audioRecorder;
+          }),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.pop(context, '');
+              },
+            ),
+            TextButton(
+              child: const Text("Done"),
+              onPressed: () {
+                Navigator.pop(context, audioRecorder.filePath);
+              },
+            ),
+          ],
+        );
+      },
+    );
+    if (_filePath != null) addFile(File(_filePath));
+  }
 
-  Future<String?> getUrl() async {
+  Future<String?> getUrl(String name) async {
     return await showDialog<String>(
       barrierDismissible: false,
       context: context,
@@ -339,7 +344,7 @@ class _MediaSelectorState extends State<MediaSelector>
         TextEditingController _controller = TextEditingController();
         return AlertDialog(
           backgroundColor: Theme.of(context).cardColor,
-          title: const Text("Enter Image URL:"),
+          title: Text("Enter $name URL:"),
           content: TextField(
             controller: _controller,
             style:
@@ -369,6 +374,66 @@ class _MediaSelectorState extends State<MediaSelector>
           ],
         );
       },
+    );
+  }
+
+  bool checkFile(File file, MediaType mediaType) {
+    String filePath = file.path.toLowerCase();
+    String extension = filePath.split('.').last;
+
+    switch (mediaType) {
+      case MediaType.AUDIO:
+        return _isAudioFile(extension);
+      case MediaType.VIDEO:
+        return _isVideoFile(extension);
+      case MediaType.IMAGE:
+        return _isImageFile(extension);
+      default:
+        return false;
+    }
+  }
+
+  bool _isAudioFile(String extension) {
+    return extension == 'mp3' ||
+        extension == 'aac' ||
+        extension == 'wav' ||
+        extension == 'ogg';
+  }
+
+  bool _isVideoFile(String extension) {
+    return extension == 'mp4' ||
+        extension == 'mov' ||
+        extension == 'avi' ||
+        extension == 'mkv';
+  }
+
+  bool _isImageFile(String extension) {
+    return extension == 'jpg' ||
+        extension == 'jpeg' ||
+        extension == 'png' ||
+        extension == 'gif';
+  }
+
+  addFile(File file) {
+    int sizeInBytes = file.lengthSync();
+    double sizeInMb = sizeInBytes / (1024 * 1024);
+    if (sizeInMb > maxFileSize) {
+      context.read<FileCheckSizeBloc>().add(true);
+    } else {
+      _closeMediaPicker();
+      context.read<FileHandlerBloc>().add(FileHandlerEvent(
+          event: FileHandlerEventEnum.LOADFILE,
+          file: file,
+          type: MediaType.AUDIO));
+    }
+  }
+
+  void showToast(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('The given URL is not match the type of media.'),
+        duration: Duration(seconds: 2),
+      ),
     );
   }
 

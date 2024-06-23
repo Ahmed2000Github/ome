@@ -15,17 +15,47 @@
     "#A52A2A",
     "#808080"
   ],
-  "fonts": [
-    "DancingScript",
-    "Foldit",
-    "RubikPuddles",
-    "Pacifico"
+  "dateColors": [
+    "#000000",
+    "#FFFFFF",
+    "#FF0000",
+    "#00FF00",
+    "#0000FF",
+    "#FFFF00",
+    "#FF00FF",
+    "#00FFFF",
+    "#800080",
+    "#FFA500",
+    "#008080",
+    "#FFC0CB",
+    "#A52A2A",
+    "#808080"
   ],
-  "dateColors": [""],
+  "fonts": ["DancingScript", "Foldit", "RubikPuddles", "Pacifico"],
   "buttonThemes": [
     {
-      "forgroundColor": "",
-      "backgroundColor": ""
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#00B6DB"
+    },
+    {
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#FFA500"
+    },
+    {
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#808080"
+    },
+    {
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#00FFFF"
+    },
+    {
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#A52A2A"
+    },
+    {
+      "forgroundColor": "#FFFFFF",
+      "backgroundColor": "#FFC0CB"
     }
   ]
 }
