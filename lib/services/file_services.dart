@@ -51,7 +51,8 @@ class FileServices {
     if (!(await directory.exists())) {
       directory = await directory.create();
     }
-    var fileIndex = (await getIndexOfLastElement()) + 1;
+    var lastFileIndex = (await getIndexOfLastElement());
+    var fileIndex = lastFileIndex == 0 ? 0 : lastFileIndex + 1;
     // add data to json file
     var jsonFile = File(directory.path + "/story_$fileIndex.json");
     jsonFile.writeAsStringSync(json.encode(data));
@@ -89,6 +90,9 @@ class FileServices {
       directory = await directory.create();
     }
     var fileIndex = story.id;
+    print("ssssssssssssssssssssssssssssssssssssssssssss");
+    print(fileIndex);
+    print(directory.path + "/story_$fileIndex.json");
     var jsonFile = File(directory.path + "/story_$fileIndex.json");
     jsonFile.writeAsStringSync(json.encode(data));
   }
@@ -100,6 +104,9 @@ class FileServices {
       directory = await directory.create();
     }
     final files = directory.listSync();
+    for (var item in files) {
+      print(item.absolute);
+    }
     final fileCount = files.whereType<File>().length;
     return fileCount;
   }
@@ -200,7 +207,7 @@ class FileServices {
     var dirPath = (await getExternalStorageDirectory())?.path ?? "";
     List<String> filesListPaths = _getFilesListPathOfDirectory(dirPath);
     filesListPaths.sort();
-    if (filesListPaths.length > 0) {
+    if (filesListPaths.isNotEmpty) {
       var str = filesListPaths.last.split("/").last.split(".").first;
       var strIndex = str[str.length - 1];
       return int.parse(strIndex);

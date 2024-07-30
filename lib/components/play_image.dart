@@ -64,31 +64,6 @@ class PlayImage extends StatelessWidget {
                         },
                       ),
                     ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 15),
-                      child: Row(
-                        children: [
-                          // IconButton(
-                          //   icon: Icon(
-                          //     Icons.share_outlined,
-                          //     size: 40,
-                          //     color: Theme.of(context).canvasColor,
-                          //   ),
-                          //   onPressed: () {},
-                          // ),
-                          const Spacer(),
-                          IconButton(
-                            icon: Icon(
-                              Icons.share_outlined,
-                              size: 40,
-                              color: Theme.of(context).canvasColor,
-                            ),
-                            onPressed: () {},
-                          )
-                        ],
-                      ),
-                    )
                   ],
                 )
               ],

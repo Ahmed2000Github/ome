@@ -29,7 +29,7 @@ class AddMemoryPage extends StatefulWidget {
 class _AddMemoryPageState extends State<AddMemoryPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  IconData _currentMediaType = Icons.photo_outlined;
+  IconData _currentMediaType = Icons.media_bluetooth_off;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -294,8 +294,12 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                                             } else {
                                               return Icon(
                                                 _currentMediaType,
-                                                color: Theme.of(context)
-                                                    .primaryColor,
+                                                color: _currentMediaType !=
+                                                        Icons
+                                                            .media_bluetooth_off
+                                                    ? Theme.of(context)
+                                                        .primaryColor
+                                                    : const Color(0xff999999),
                                                 size: 50,
                                               );
                                             }
