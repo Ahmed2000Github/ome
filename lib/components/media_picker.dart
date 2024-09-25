@@ -3,12 +3,16 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
 import 'package:ome/blocs/file_size_check.dart';
 import 'package:ome/components/audio-recorder.dart';
+import 'package:ome/configurations/configuration.dart';
 import 'package:ome/configurations/utils.dart';
 import 'package:ome/enums/media_type.dart';
+
+import '../blocs/open_close_download_indicator.dart';
 
 class MediaSelector extends StatefulWidget {
   Function setInnerState;
@@ -28,9 +32,6 @@ class MediaSelector extends StatefulWidget {
 class _MediaSelectorState extends State<MediaSelector>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
-  XFile? _video;
-  int maxFileSize = 8;
 
   @override
   void initState() {
@@ -167,7 +168,8 @@ class _MediaSelectorState extends State<MediaSelector>
                                 enumName.substring(1);
                             var link = await getUrl(formattedName) ?? '';
                             if (link.isNotEmpty) {
-                              handleFileFromUrl(link, widget.mediaType);
+                              handleFileFromUrl(
+                                  context, link, widget.mediaType);
                             }
                           },
                           child: Container(
@@ -232,23 +234,12 @@ class _MediaSelectorState extends State<MediaSelector>
 
   handleImageFromGallery() async {
     var image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    _closeMediaPicker();
-    context.read<FileHandlerBloc>().add(FileHandlerEvent(
-        event: FileHandlerEventEnum.LOADFILE,
-        file: File(image!.path),
-        type: MediaType.IMAGE));
+    if (image != null) addFile(File(image.path), MediaType.IMAGE);
   }
 
   handleImageFromCamera() async {
     var image = await ImagePicker().pickImage(source: ImageSource.camera);
-    _closeMediaPicker();
-    context.read<FileHandlerBloc>().add(FileHandlerEvent(
-        event: FileHandlerEventEnum.LOADFILE,
-        file: File(image!.path),
-        type: MediaType.IMAGE));
-    // setState(() {
-    //   _image = image;
-    // });
+    if (image != null) addFile(File(image.path), MediaType.IMAGE);
   }
 
   // https://th.bing.com/th/id/OIP.4XB8NF1awQyApnQDDmBmQwHaEo?pid=ImgDet&rs=1
@@ -260,39 +251,31 @@ class _MediaSelectorState extends State<MediaSelector>
       type: FileType.video,
       allowCompression: false,
     );
-    File file = File(result!.files.first.path!);
-    int sizeInBytes = file.lengthSync();
-    double sizeInMb = sizeInBytes / (1024 * 1024);
-    if (sizeInMb > maxFileSize) {
-      context.read<FileCheckSizeBloc>().add(true);
-    } else {
-      _closeMediaPicker();
-      context.read<FileHandlerBloc>().add(FileHandlerEvent(
-          event: FileHandlerEventEnum.LOADFILE,
-          file: file,
-          type: MediaType.VIDEO));
+    if (result != null) {
+      addFile(File(result.files.first.path!), MediaType.VIDEO);
     }
   }
 
   handleVideoFromCamera() async {
-    var video = await ImagePicker().pickVideo(source: ImageSource.camera);
-    _closeMediaPicker();
-    setState(() {
-      _video = video;
-    });
+    var result = await ImagePicker().pickVideo(source: ImageSource.camera);
+    if (result != null) {
+      addFile(File(result.path), MediaType.VIDEO);
+    }
   }
 
-  handleFileFromUrl(String link, MediaType typeOfMedia) async {
+  handleFileFromUrl(
+      BuildContext context, String link, MediaType typeOfMedia) async {
     try {
-      var file = await Utils.getFileFromUrl(link);
-      var result = checkFile(file, typeOfMedia);
-      result
-          ? context.read<FileHandlerBloc>().add(FileHandlerEvent(
-              event: FileHandlerEventEnum.LOADFILE,
-              file: File(file.path),
-              type: typeOfMedia))
-          : showToast(context);
-    } catch (e) {}
+      context.read<OpenCloseDownloadIndicatorBloc>().add(true);
+      var file = await Utils.getFileFromUrl(context, link, typeOfMedia);
+      if (file != null) {
+        context.read<OpenCloseDownloadIndicatorBloc>().add(false);
+        addFile(File(file.path), typeOfMedia);
+      }
+    } catch (e) {
+      context.read<OpenCloseDownloadIndicatorBloc>().add(false);
+      Utils.showToast(context, "Failed to download file.");
+    }
   }
 
   handleAudioFromGallery() async {
@@ -300,7 +283,9 @@ class _MediaSelectorState extends State<MediaSelector>
       type: FileType.audio,
       allowCompression: false,
     );
-    addFile(File(result!.files.first.path!));
+    if (result != null) {
+      addFile(File(result.files.first.path!), MediaType.AUDIO);
+    }
   }
 
   handleAudioFromMicrop() async {
@@ -333,7 +318,7 @@ class _MediaSelectorState extends State<MediaSelector>
         );
       },
     );
-    if (_filePath != null) addFile(File(_filePath));
+    if (_filePath != null) addFile(File(_filePath), MediaType.AUDIO);
   }
 
   Future<String?> getUrl(String name) async {
@@ -377,64 +362,16 @@ class _MediaSelectorState extends State<MediaSelector>
     );
   }
 
-  bool checkFile(File file, MediaType mediaType) {
-    String filePath = file.path.toLowerCase();
-    String extension = filePath.split('.').last;
-
-    switch (mediaType) {
-      case MediaType.AUDIO:
-        return _isAudioFile(extension);
-      case MediaType.VIDEO:
-        return _isVideoFile(extension);
-      case MediaType.IMAGE:
-        return _isImageFile(extension);
-      default:
-        return false;
-    }
-  }
-
-  bool _isAudioFile(String extension) {
-    return extension == 'mp3' ||
-        extension == 'aac' ||
-        extension == 'wav' ||
-        extension == 'ogg';
-  }
-
-  bool _isVideoFile(String extension) {
-    return extension == 'mp4' ||
-        extension == 'mov' ||
-        extension == 'avi' ||
-        extension == 'mkv';
-  }
-
-  bool _isImageFile(String extension) {
-    return extension == 'jpg' ||
-        extension == 'jpeg' ||
-        extension == 'png' ||
-        extension == 'gif';
-  }
-
-  addFile(File file) {
+  addFile(File file, MediaType type) {
     int sizeInBytes = file.lengthSync();
     double sizeInMb = sizeInBytes / (1024 * 1024);
-    if (sizeInMb > maxFileSize) {
+    if (sizeInMb > Configuration.maxFileSize) {
       context.read<FileCheckSizeBloc>().add(true);
     } else {
       _closeMediaPicker();
       context.read<FileHandlerBloc>().add(FileHandlerEvent(
-          event: FileHandlerEventEnum.LOADFILE,
-          file: file,
-          type: MediaType.AUDIO));
+          event: FileHandlerEventEnum.LOADFILE, file: file, type: type));
     }
-  }
-
-  void showToast(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('The given URL is not match the type of media.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
 
   @override

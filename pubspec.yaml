@@ -40,8 +40,8 @@ dependencies:
   path_provider: ^2.0.11
   share_plus: ^4.4.0
   video_player: ^2.5.1
-  hive: ^2.2.2
-  hive_flutter: ^1.1.0
+  # hive: ^2.2.2
+  # hive_flutter: ^1.1.0
   flutter_sound: ^9.2.7
   permission_handler: ^10.2.0
 
@@ -61,6 +61,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/lotties/
     - assets/images/
     - assets/data/
     - assets/images/backgrounds/
@@ -72,6 +73,9 @@ flutter:
     - family: Foldit
       fonts:
         - asset: assets/fonts/Foldit-VariableFont_wght.ttf
+    - family: Harlow
+      fonts:
+        - asset: assets/fonts/harlow-solid-std.otf
     - family: RubikPuddles
       fonts:
         - asset: assets/fonts/RubikPuddles-Regular.ttf

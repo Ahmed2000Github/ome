@@ -31,7 +31,7 @@
     "#A52A2A",
     "#808080"
   ],
-  "fonts": ["DancingScript", "Foldit", "RubikPuddles", "Pacifico"],
+  "fonts": ["DancingScript", "Foldit", "RubikPuddles", "Pacifico", "Harlow"],
   "buttonThemes": [
     {
       "forgroundColor": "#FFFFFF",

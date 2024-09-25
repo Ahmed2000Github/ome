@@ -86,7 +86,7 @@ class _StoryThemeMenuState extends State<StoryThemeMenu> {
                 "Select theme to add in your story ",
                 style: Theme.of(context).textTheme.headline6,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Container(

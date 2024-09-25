@@ -29,13 +29,11 @@ class StoryHandlerBloc extends Bloc<StoryHandlerEvent, StoryHandlerState> {
         break;
       case StoryHandlerEventStatus.POST:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        print("add....");
         await fileServices.addFileToAlbom(event.story!);
-        yield StoryHandlerState(status: StateStatus.CHANGELOADED);
+        yield StoryHandlerState(status: StateStatus.LOADED);
         break;
       case StoryHandlerEventStatus.UPDATE:
         yield StoryHandlerState(status: StateStatus.LOADING);
-        print("update....");
         await fileServices.updateFileFromAlbom(event.story!);
         yield StoryHandlerState(status: StateStatus.LOADED);
         break;

@@ -171,8 +171,9 @@ class _HomePageState extends State<HomePage>
           top: height * .05,
           left: width * .05,
           child: Image(
-            image: const AssetImage("assets/images/ome_logo_shadow.png"),
-            width: height * .15,
+            image: const AssetImage(
+                "assets/images/my_memomies_logo_title_dark.png"),
+            width: height * .4,
           ),
         )
       ]),

@@ -10,15 +10,15 @@ import 'package:ome/blocs/story_handler/story_handler_bloc.dart';
 import 'package:ome/components/background_images.dart';
 import 'package:ome/components/bottom_bar.dart';
 import 'package:ome/components/loading_indicator.dart';
-import 'package:ome/components/my_page.dart';
+import 'package:ome/components/page_content.dart';
 import 'package:ome/components/play_audio.dart';
 import 'package:ome/components/play_image.dart';
 import 'package:ome/components/play_video.dart';
 import 'package:ome/components/story_theme_menu.dart';
 import 'package:ome/configurations/routes.dart' as routes;
+import 'package:ome/configurations/utils.dart';
 import 'package:ome/enums/media_type.dart';
 import 'package:ome/enums/state_status.dart';
-import 'package:ome/models/sory_theme.dart';
 
 class BookPage extends StatelessWidget {
   const BookPage({Key? key}) : super(key: key);
@@ -70,7 +70,8 @@ class BookPage extends StatelessWidget {
                                   status: StoryHandlerEventStatus.NONE));
                           Navigator.pushNamed(context, routes.addMemoryPage);
                         },
-                        child: const Text("Add Story to Book"))
+                        child: const Text("Add Story to Book",
+                            style: TextStyle(fontFamily: "Harlow")))
                   ],
                 )),
               ],
@@ -97,12 +98,12 @@ class _MemoryPageState extends State<MemoryPage> {
   int currentPage = 0;
   bool isInCurrent = false;
   bool isInNext = false;
+
   @override
   void initState() {
     super.initState();
-    context
-        .read<StoryHandlerBloc>()
-        .add(StoryHandlerEvent(status: StoryHandlerEventStatus.GET, id: 0));
+    context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+        status: StoryHandlerEventStatus.GET, id: Utils.CurrentIndex));
   }
 
   @override
@@ -110,77 +111,87 @@ class _MemoryPageState extends State<MemoryPage> {
     // var isPlayMediaOpen = true;
     // var width = MediaQuery.of(context).size.width;
     // var height = MediaQuery.of(context).size.height;
-    return Stack(children: [
-      GestureDetector(onHorizontalDragEnd: (DragEndDetails details) {
-        if (details.primaryVelocity! > 0 && (currentPage - 1) > -1) {
-          // print("swiping right");
-          context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-              status: StoryHandlerEventStatus.GET, id: currentPage - 1));
-        } else if (details.primaryVelocity! < 0 &&
-            (currentPage + 1) < widget.numberOfFiles) {
-          // print("swiping left");
-          context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-              status: StoryHandlerEventStatus.GET, id: currentPage + 1));
+    return BlocBuilder<StoryHandlerBloc, StoryHandlerState>(
+      builder: (context, state) {
+        if (state.status == StateStatus.LOADING) {
+          return const LoadingIndicator();
         }
-      },
-          child: BlocBuilder<StoryHandlerBloc, StoryHandlerState>(
-        builder: (context, state) {
-          if (state.status == StateStatus.LOADING) {
-            return const LoadingIndicator();
-          }
-          if (state.status == StateStatus.LOADED) {
-            if (state.story != null) {
-              currentPage = state.story!.id;
-              return Stack(
-                children: [
-                  MyPage(
+        if (state.status == StateStatus.LOADED) {
+          if (state.story != null) {
+            currentPage = state.story!.id;
+            return Stack(
+              children: [
+                GestureDetector(
+                  onHorizontalDragEnd: onHorizontalDragEnd,
+                  child: PageContent(
                     model: state.story!,
                   ),
-                  BlocBuilder<OpenCloseMediaBloc, bool>(
-                      builder: (context, localState) {
-                    if (localState) {
-                      switch (state.story!.fileType) {
-                        case MediaType.AUDIO:
-                          return PlayAudio(file: state.story!.file!);
-                        case MediaType.IMAGE:
-                          return PlayImage(file: state.story!.file!);
-                        case MediaType.VIDEO:
-                          return PlayVideo(file: state.story!.file!);
-                        default:
-                          return Container();
-                      }
-                    } else {
-                      return Container();
+                ),
+                BlocBuilder<OpenCloseMediaBloc, bool>(
+                    builder: (context, localState) {
+                  if (localState) {
+                    switch (state.story!.fileType) {
+                      case MediaType.AUDIO:
+                        return PlayAudio(file: state.story!.file!);
+                      case MediaType.IMAGE:
+                        return PlayImage(file: state.story!.file!);
+                      case MediaType.VIDEO:
+                        return PlayVideo(file: state.story!.file!);
+                      default:
+                        return Container();
                     }
-                  }),
-                  BottomBar(model: state.story!),
-                  BlocBuilder<OpenCloseBackgroundImagesBloc, bool>(
-                    builder: (context, openState) {
-                      return openState
-                          ? BackgoundImages(
-                              backgroundName: state.story!.background,
-                              storyId: state.story!.id)
-                          : Container();
-                    },
-                  ),
-                  BlocBuilder<OpenCloseStoryThemeMenuBloc, bool>(
-                    builder: (context, openState) {
-                      return openState
-                          ? StoryThemeMenu(
-                              storyId: state.story!.id,
-                              storyTheme: state.story!.theme!)
-                          : Container();
-                    },
-                  )
-                ],
-              );
-            }
-            return const Center(child: Text("No"));
-          } else {
-            return const Center(child: Text("No data fount"));
+                  } else {
+                    return Container();
+                  }
+                }),
+                BottomBar(model: state.story!),
+                BlocBuilder<OpenCloseBackgroundImagesBloc, bool>(
+                  builder: (context, openState) {
+                    return openState
+                        ? BackgoundImages(
+                            backgroundName: state.story!.background,
+                            storyId: state.story!.id)
+                        : Container();
+                  },
+                ),
+                BlocBuilder<OpenCloseStoryThemeMenuBloc, bool>(
+                  builder: (context, openState) {
+                    return openState
+                        ? StoryThemeMenu(
+                            storyId: state.story!.id,
+                            storyTheme: state.story!.theme!)
+                        : Container();
+                  },
+                ),
+              ],
+            );
           }
-        },
-      ))
-    ]);
+          context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+              status: StoryHandlerEventStatus.GET, id: Utils.CurrentIndex));
+          return Center(
+              child: Text("Story not found!",
+                  style: Theme.of(context).textTheme.headline4));
+        } else {
+          context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+              status: StoryHandlerEventStatus.GET, id: Utils.CurrentIndex));
+          return Center(
+              child: Text("No data fount \n loading ... ",
+                  style: Theme.of(context).textTheme.headline4));
+        }
+      },
+    );
+  }
+
+  onHorizontalDragEnd(DragEndDetails details) {
+    if (details.primaryVelocity! > 0 && (currentPage - 1) > -1) {
+      Utils.CurrentIndex = currentPage - 1;
+      context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+          status: StoryHandlerEventStatus.GET, id: Utils.CurrentIndex));
+    } else if (details.primaryVelocity! < 0 &&
+        (currentPage + 1) < widget.numberOfFiles) {
+      Utils.CurrentIndex = currentPage + 1;
+      context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+          status: StoryHandlerEventStatus.GET, id: Utils.CurrentIndex));
+    }
   }
 }

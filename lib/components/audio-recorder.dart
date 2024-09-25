@@ -83,9 +83,9 @@ class _AudioRecorderState extends State<AudioRecorder> {
   void _getRecordedFile() {
     if (widget.filePath != null && !_isRecording) {
       File recordedFile = File(widget.filePath!);
-      print('Recorded file path: ${recordedFile.path}');
+      // print('Recorded file path: ${recordedFile.path}');
     } else {
-      print('No recording available');
+      // print('No recording available');
     }
   }
 

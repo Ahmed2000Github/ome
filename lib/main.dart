@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+// import 'package:hive_flutter/hive_flutter.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
 import 'package:ome/blocs/file_size_check.dart';
@@ -14,10 +14,13 @@ import 'package:ome/configurations/routes.dart' as routes;
 import 'package:ome/configurations/utils.dart';
 import 'package:ome/services/file_services.dart';
 
+import 'blocs/download_progress.dart';
+import 'blocs/open_close_download_indicator.dart';
+
 setUp() async {
   GetIt.I.registerLazySingleton(() => FileServices());
-  await Hive.initFlutter();
-  await Hive.openBox('ome');
+  // await Hive.initFlutter();
+  // await Hive.openBox('ome');
 }
 
 void main() async {
@@ -50,6 +53,12 @@ class _MyAppState extends State<MyApp> {
           create: (context) => OpenCloseMediaBloc(),
         ),
         BlocProvider(
+          create: (context) => DownloadProgressBloc(),
+        ),
+        BlocProvider(
+          create: (context) => OpenCloseDownloadIndicatorBloc(),
+        ),
+        BlocProvider(
           create: (context) => FileHandlerBloc(),
         ),
         BlocProvider(
@@ -70,7 +79,7 @@ class _MyAppState extends State<MyApp> {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'OME',
+        title: 'My Memories',
         theme: ThemeData(
             floatingActionButtonTheme: FloatingActionButtonThemeData(
                 foregroundColor: const Color(0xffffffff),
@@ -81,8 +90,9 @@ class _MyAppState extends State<MyApp> {
             primaryColor: Colors.cyan,
             cardColor: const Color.fromARGB(255, 0, 29, 59),
             primaryColorDark: Colors.cyan,
-            primaryTextTheme:
-                const TextTheme(headline4: TextStyle(color: Color(0xffffffff))),
+            primaryTextTheme: const TextTheme(
+                headline4:
+                    TextStyle(color: Color(0xffffffff), fontFamily: "Harlow")),
             // elevated button theme
             elevatedButtonTheme: ElevatedButtonThemeData(
                 style: ElevatedButton.styleFrom(
@@ -92,23 +102,29 @@ class _MyAppState extends State<MyApp> {
                         borderRadius: BorderRadius.circular(20)),
                     primary: Colors.cyan, // background color
                     textStyle: const TextStyle(
-                        fontSize: 20, fontStyle: FontStyle.italic))),
+                        fontSize: 20,
+                        fontStyle: FontStyle.italic,
+                        fontFamily: "Harlow"))),
             // outlined button theme
             outlinedButtonTheme: OutlinedButtonThemeData(
                 style: OutlinedButton.styleFrom(
               backgroundColor: Colors.cyan.shade100,
               padding: const EdgeInsets.all(15),
-              textStyle: const TextStyle(
-                fontSize: 20,
-              ),
+              textStyle: const TextStyle(fontSize: 20, fontFamily: "Harlow"),
             )),
             textTheme: const TextTheme(
-                headline4: TextStyle(color: Color(0xffffffff)),
-                headline6: TextStyle(color: Color(0xffffffff)),
-                headline5: TextStyle(color: Color(0xffffffff)),
-                subtitle1: TextStyle(color: Colors.cyan, fontSize: 25),
+                headline4:
+                    TextStyle(color: Color(0xffffffff), fontFamily: "Harlow"),
+                headline6:
+                    TextStyle(color: Color(0xffffffff), fontFamily: "Harlow"),
+                headline5:
+                    TextStyle(color: Color(0xffffffff), fontFamily: "Harlow"),
+                subtitle1: TextStyle(
+                    color: Colors.cyan, fontSize: 25, fontFamily: "Harlow"),
                 headline3: TextStyle(
-                    color: Color(0xffffffff), fontWeight: FontWeight.bold)),
+                    color: Color(0xffffffff),
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Harlow")),
             scaffoldBackgroundColor: const Color(0xff00142a)),
         onGenerateRoute: routes.controller,
         initialRoute: routes.homePage,

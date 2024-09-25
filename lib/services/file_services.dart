@@ -51,9 +51,8 @@ class FileServices {
     if (!(await directory.exists())) {
       directory = await directory.create();
     }
-    var lastFileIndex = (await getIndexOfLastElement());
-    var fileIndex = lastFileIndex == 0 ? 0 : lastFileIndex + 1;
-    // add data to json file
+    var result = (await getIndexOfLastElement());
+    var fileIndex = result['isEmpty'] ? 0 : result['index'] + 1;
     var jsonFile = File(directory.path + "/story_$fileIndex.json");
     jsonFile.writeAsStringSync(json.encode(data));
     // }
@@ -90,9 +89,6 @@ class FileServices {
       directory = await directory.create();
     }
     var fileIndex = story.id;
-    print("ssssssssssssssssssssssssssssssssssssssssssss");
-    print(fileIndex);
-    print(directory.path + "/story_$fileIndex.json");
     var jsonFile = File(directory.path + "/story_$fileIndex.json");
     jsonFile.writeAsStringSync(json.encode(data));
   }
@@ -105,7 +101,6 @@ class FileServices {
     }
     final files = directory.listSync();
     for (var item in files) {
-      print(item.absolute);
     }
     final fileCount = files.whereType<File>().length;
     return fileCount;
@@ -203,16 +198,16 @@ class FileServices {
     await Utils.deleteCacheDir();
   }
 
-  Future<int> getIndexOfLastElement() async {
+  Future<Map<String, dynamic>> getIndexOfLastElement() async {
     var dirPath = (await getExternalStorageDirectory())?.path ?? "";
     List<String> filesListPaths = _getFilesListPathOfDirectory(dirPath);
     filesListPaths.sort();
     if (filesListPaths.isNotEmpty) {
       var str = filesListPaths.last.split("/").last.split(".").first;
       var strIndex = str[str.length - 1];
-      return int.parse(strIndex);
+      return {'isEmpty': false, "index": int.parse(strIndex)};
     } else {
-      return 0;
+      return {'isEmpty': true, "index": 0};
     }
   }
 }

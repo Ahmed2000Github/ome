@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/open_close_background_images.dart';
 import 'package:ome/blocs/open_close_story_menu.dart';
 import 'package:ome/blocs/story_handler/story_handler_bloc.dart';
 import 'package:ome/configurations/configuration.dart';
 import 'package:ome/configurations/routes.dart' as routes;
+import 'package:ome/configurations/utils.dart';
 import 'package:ome/models/memory.dart';
+import 'package:ome/services/file_services.dart';
 
 // ignore: must_be_immutable
 class BottomBar extends StatefulWidget {
@@ -183,6 +186,7 @@ class _BottomBarState extends State<BottomBar>
 class CRUDMenu extends StatelessWidget {
   MemoryModel model;
   Function closeMenu;
+  FileServices get fileServices => GetIt.I<FileServices>();
   CRUDMenu({required this.model, required this.closeMenu});
 
   @override
@@ -298,13 +302,14 @@ class CRUDMenu extends StatelessWidget {
               TextButton(
                 child:
                     const Text("Remove", style: TextStyle(color: Colors.red)),
-                onPressed: () {
+                onPressed: () async {
                   context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
                       status: StoryHandlerEventStatus.DELETE, id: indexFile));
                   context.read<DirectoryInfoBloc>().add(DirectoryInfoEvent());
-
-                  context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-                      status: StoryHandlerEventStatus.GET, id: 0));
+                  var result = await fileServices.getIndexOfLastElement();
+                  Utils.CurrentIndex = (result['isEmpty'] ? 0 : result["index"] - 1);
+                  // context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
+                  //     status: StoryHandlerEventStatus.GET, id: targetId));
                   Navigator.pop(context);
                 },
               ),

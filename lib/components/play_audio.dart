@@ -19,12 +19,12 @@ class PlayAudio extends StatefulWidget {
 class _PlayAudioState extends State<PlayAudio> {
   AudioPlayer player = AudioPlayer();
   bool isPlaying = false;
-  double _value = 0;
-  double maxValue = 0;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
   bool loop = false;
   bool mute = false;
   bool isSoundFinished = false;
-  Timer? timer;
+
   Function setInnerState = () {};
   @override
   void initState() {
@@ -34,30 +34,31 @@ class _PlayAudioState extends State<PlayAudio> {
   }
 
   Future<void> initAudio() async {
-    var bytes = await widget.file.readAsBytes();
-    var buffer = bytes.buffer;
-    player.play(BytesSource(Uint8List.view(buffer)));
-    isPlaying = true;
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      // print("Timer run");
-      var value =
-          (await player.getCurrentPosition())!.inSeconds.floorToDouble();
-      var _maxValue = (await player.getDuration())!.inSeconds.floorToDouble();
-      if (mounted == true) {
-        setState(() {
-          // print("the value is : " + value.toString());
-          // print("the max value is : " + _maxValue.toString());
-          _value = value;
-          maxValue = _maxValue;
-        });
-      }
+    // Listen to audio player state changes
+    player.onDurationChanged.listen((Duration d) {
+      setInnerState(() {
+        _duration = d;
+      });
     });
+
+    player.onPositionChanged.listen((Duration p) {
+      setInnerState(() {
+        _position = p;
+      });
+    });
+
+    player.onPlayerComplete.listen((event) {
+      setInnerState(() {
+        _position = _duration;
+      });
+    });
+    var bytes = await widget.file.readAsBytes();
+    await player.setSourceBytes(bytes);
   }
 
   void onSoundFinished() {
     var s = player.onPlayerComplete;
     s.listen((event) {
-      timer!.cancel();
       setState(() {
         isPlaying = false;
         isSoundFinished = true;
@@ -105,21 +106,23 @@ class _PlayAudioState extends State<PlayAudio> {
               children: [
                 Container(
                     padding: const EdgeInsets.all(10),
-                    child: Lottie.asset("assets/images/sound.json",
+                    child: Lottie.asset("assets/lotties/sound.json",
                         animate: isPlaying)),
                 Container(
                   margin: const EdgeInsets.only(top: 200),
                   child: StatefulBuilder(builder: (context, innerState) {
                     setInnerState = innerState;
+
                     return Slider(
-                        value: _value,
-                        min: 0.0,
-                        max: maxValue,
-                        thumbColor: Theme.of(context).primaryColor,
-                        activeColor: Theme.of(context).primaryColor,
-                        onChanged: (value) async {
-                          player.seek(Duration(seconds: value.ceil()));
+                      min: 0.0,
+                      max: _duration.inSeconds.toDouble(),
+                      value: _position.inSeconds.toDouble(),
+                      onChanged: (double value) {
+                        setInnerState(() {
+                          player.seek(Duration(seconds: value.toInt()));
                         });
+                      },
+                    );
                   }),
                 ),
                 Column(

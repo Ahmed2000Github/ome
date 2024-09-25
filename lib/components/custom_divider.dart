@@ -33,7 +33,8 @@ class CustomTap extends StatelessWidget {
           children: [
             Text(
               textTap,
-              style: TextStyle(color: color, fontSize: 20),
+              style:
+                  TextStyle(color: color, fontSize: 20, fontFamily: "Harlow"),
             ),
             const SizedBox(
               height: 10,

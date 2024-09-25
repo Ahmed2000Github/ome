@@ -1,11 +1,13 @@
 // ignore_for_file: prefer_function_declarations_over_variables
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:ome/blocs/directory_info/directory_info_bloc.dart';
 import 'package:ome/blocs/file_handler/file_handler_bloc.dart';
@@ -13,10 +15,16 @@ import 'package:ome/blocs/file_size_check.dart';
 import 'package:ome/blocs/story_handler/story_handler_bloc.dart';
 import 'package:ome/components/loading_indicator.dart';
 import 'package:ome/components/media_picker.dart';
+import 'package:ome/configurations/utils.dart';
 import 'package:ome/enums/media_type.dart';
 import 'package:ome/enums/state_status.dart';
 import 'package:ome/models/memory.dart';
+import 'package:ome/services/file_services.dart';
 import 'package:video_player/video_player.dart';
+
+import '../blocs/download_progress.dart';
+import '../blocs/open_close_download_indicator.dart';
+import '../components/percent_indicator/percent_indicator.dart';
 
 class AddMemoryPage extends StatefulWidget {
   MemoryModel? model;
@@ -49,6 +57,7 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
 
   File? file;
   MemoryModel? model;
+  FileServices get fileServices => GetIt.I<FileServices>();
 
   _AddMemoryPageState(this.model) {
     if (model != null) {
@@ -440,7 +449,6 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                     )
                   : Container();
             }),
-            // LoadingIndicator(),
             BlocBuilder<StoryHandlerBloc, StoryHandlerState>(
               builder: (context, state) {
                 if (state.status == StateStatus.LOADING) {
@@ -503,7 +511,51 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
                       )
                     : Container();
               },
-            )
+            ),
+            BlocBuilder<OpenCloseDownloadIndicatorBloc, bool>(
+                builder: (context, state) {
+              return state
+                  ? Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Theme.of(context).canvasColor,
+                                    blurRadius: 2)
+                              ],
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(10)),
+                          width: width * 0.5,
+                          height: width * 0.5,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Spacer(),
+                              BlocBuilder<DownloadProgressBloc, double>(
+                                  builder: (context, state) {
+                                return PercentIndicator(
+                                  percent: state,
+                                  lineWidth: 5.0,
+                                  size: 30.0,
+                                  lineColor: Colors.grey,
+                                  completeColor: Colors.cyan,
+                                );
+                              }),
+                              const Spacer(),
+                              Text(
+                                "Loading ...",
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container();
+            })
           ],
         ),
       ),
@@ -522,7 +574,6 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
         file: file,
         fileType: _mediaType,
         date: DateTime.now());
-    // print(story.id);
 
     context
         .read<FileHandlerBloc>()
@@ -533,12 +584,15 @@ class _AddMemoryPageState extends State<AddMemoryPage> {
             : StoryHandlerEventStatus.UPDATE,
         story: story));
 
-    _goBack(context);
+    await _goBack(context);
   }
 
-  _goBack(BuildContext context) {
-    context.read<StoryHandlerBloc>().add(StoryHandlerEvent(
-        status: StoryHandlerEventStatus.GET, id: widget.model?.id ?? 0));
+  _goBack(BuildContext context) async {
+    var result = await fileServices.getIndexOfLastElement();
+    Utils.CurrentIndex =
+        widget.model?.id ?? (result['isEmpty'] ? 0 : result["index"] + 1);
+    // context.read<StoryHandlerBloc>().add(
+    //     StoryHandlerEvent(status: StoryHandlerEventStatus.GET, id: targetId));
     Navigator.pop(context);
   }
 
