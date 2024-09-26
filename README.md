@@ -1,6 +1,6 @@
-# OME (Our Memory) - Flutter App
+# My Memories - Flutter App
 
-Welcome to OME (Our Memory), a delightful Flutter app designed to help users capture and cherish their memories. Each page in this digital memory book represents a special moment, allowing users to create, personalize, and relive their cherished memories.
+Welcome to My Memories, a delightful Flutter app designed to help users capture and cherish their memories. Each page in this digital memory book represents a special moment, allowing users to create, personalize, and relive their cherished memories.
 
 ## Features
 
@@ -26,14 +26,14 @@ Welcome to OME (Our Memory), a delightful Flutter app designed to help users cap
 2. Navigate to the project directory:
 
    ```bash
-   cd ome-flutter
+   cd ome
   Open the project in your preferred Flutter IDE.
 
 Run the app on your preferred emulator or physical device.
 
 ## Usage
 
-  Open the OME app on your device.
+  Open the My Memories app on your device.
   Create a new memory page for each special moment.
   Add media, titles, and text descriptions to capture the essence of your memories.
   Personalize each page with styling options to make it uniquely yours.
@@ -41,7 +41,7 @@ Run the app on your preferred emulator or physical device.
 ## Security and Privacy
 
   Your memories are stored securely in an encrypted file to protect your personal moments.
-  OME prioritizes the privacy and security of your data, ensuring that only you can access and relive your memories.
+  My Memories app prioritizes the privacy and security of your data, ensuring that only you can access and relive your memories.
   
 ## Contributing
 
